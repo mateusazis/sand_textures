@@ -36,6 +36,13 @@ var main=function() {
   // GL.attachShader(SHADER_PROGRAM3, point_vertex);
   // GL.attachShader(SHADER_PROGRAM3, point_fragment);
   // GL.linkProgram(SHADER_PROGRAM3);
+  var mat0 = new Material(GL, "move.vert", "move.frag");
+  var quad = new Mesh(GL, GL.TRIANGLES, [-1,-1,0,1,
+      -1, 1, 0, 1,
+      1, 1, 0, 1,
+      1, -1, 0, 1], [0,1,2,2,3,0],[0,1,0,0,1,0,1,1]
+  );
+
   var mat = new Material(GL, "point.vert", "point.frag");
   var m = new Mesh(GL, GL.POINTS, [0, 0, 0, 1]);
 
@@ -100,6 +107,7 @@ var main=function() {
   };
 
   /*========================= TEXTURES ========================= */
+    var t;
   var get_texture=function(image_URL){
 
 
@@ -108,35 +116,36 @@ var main=function() {
     image.src=image_URL;
     image.webglTexture=false;
 
-
     image.onload=function(e) {
-      var texture=GL.createTexture();
-
-      GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);
-
-
-      GL.bindTexture(GL.TEXTURE_2D, texture);
-
-      GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, image);
-
-      GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
-      GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
-
-      GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
-      GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-
-      GL.generateMipmap(GL.TEXTURE_2D);
-
-      GL.bindTexture(GL.TEXTURE_2D, null);
-
-      image.webglTexture=texture;
+    //   var texture=GL.createTexture();
+      //
+    //   GL.pixelStorei(GL.UNPACK_FLIP_Y_WEBGL, true);
+      //
+      //
+    //   GL.bindTexture(GL.TEXTURE_2D, texture);
+      //
+    //   GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE, image);
+      //
+    //   GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+    //   GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
+      //
+    //   GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+    //   GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+      //
+    //   GL.generateMipmap(GL.TEXTURE_2D);
+      //
+    //   GL.bindTexture(GL.TEXTURE_2D, null);
+      //
+    //   image.webglTexture=texture;
     };
 
     return image;
   };
 
   // var cube_texture=get_texture("p.png");
-  var cube_texture=get_texture("url.jpg");
+  // var cube_texture=get_texture("url.jpg");
+  var t = Texture.fromURL(gl, "url.jpg");
+  console.log("t", t);
 
   /*========================= DRAWING ========================= */
   GL.enable(GL.DEPTH_TEST);
@@ -153,45 +162,52 @@ var main=function() {
   var first = true;
   var fboScreen = fbo1, fboTex = fbo2;
   var animate=function() {
-    GL.useProgram(SHADER_PROGRAM);
+    // GL.useProgram(SHADER_PROGRAM);
+    //
+    // GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
+    // GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
+    //
+    // if (cube_texture.webglTexture) {
+    //   GL.activeTexture(GL.TEXTURE0);
+    //   if(first){
+    //     setupProgram(SHADER_PROGRAM2);
+    //     GL.bindTexture(GL.TEXTURE_2D, cube_texture.webglTexture);
+    //
+    //     fboTex.bind(GL);
+    //     GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_SHORT, 0);
+    //     GL.flush();
+    //     fboTex.unbind(GL);
+    //   }
+    //   first = false;
+    // }
+    //
+    // // setupProgram(SHADER_PROGRAM);
+    // mat0.use();
+    // GL.bindTexture(GL.TEXTURE_2D, fboTex.colorTex.id);
+    //
+    // fboScreen.bind(GL);
+    // GL.clearColor(0,0,0,1);
+    // GL.clear(GL.COLOR_BUFFER_BIT);
+    // quad.draw(mat0);
+    // // GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_SHORT, 0);
+    // GL.flush();
+    // fboScreen.unbind(GL);
+    //
+    // setupProgram(SHADER_PROGRAM2);
+    // GL.bindTexture(GL.TEXTURE_2D, fboScreen.colorTex.id);
+    // GL.clearColor(0,0,0,1);
+    // GL.clear(GL.COLOR_BUFFER_BIT);
+    // GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_SHORT, 0);
+    // GL.flush();
+    //
+    // var temp = fboTex;
+    // fboTex = fboScreen;
+    // fboScreen = temp;
 
-    GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
-    GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
+    if(t)
+        mat0.texture("sampler", t, 0);
 
-    if (cube_texture.webglTexture) {
-      GL.activeTexture(GL.TEXTURE0);
-      if(first){
-        setupProgram(SHADER_PROGRAM2);
-        GL.bindTexture(GL.TEXTURE_2D, cube_texture.webglTexture);
-
-        fboTex.bind(GL);
-        GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_SHORT, 0);
-        GL.flush();
-        fboTex.unbind(GL);
-      }
-      first = false;
-    }
-
-    setupProgram(SHADER_PROGRAM);
-    GL.bindTexture(GL.TEXTURE_2D, fboTex.colorTex.id);
-
-    fboScreen.bind(GL);
-    GL.clearColor(0,0,0,1);
-    GL.clear(GL.COLOR_BUFFER_BIT);
-    GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_SHORT, 0);
-    GL.flush();
-    fboScreen.unbind(GL);
-
-    setupProgram(SHADER_PROGRAM2);
-    GL.bindTexture(GL.TEXTURE_2D, fboScreen.colorTex.id);
-    GL.clearColor(0,0,0,1);
-    GL.clear(GL.COLOR_BUFFER_BIT);
-    GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_SHORT, 0);
-    GL.flush();
-
-    var temp = fboTex;
-    fboTex = fboScreen;
-    fboScreen = temp;
+    quad.draw(mat0);
 
     setTimeout(animate, 0);
   };
