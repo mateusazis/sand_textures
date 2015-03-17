@@ -4,6 +4,7 @@ var main=function() {
 
   /*========================= GET WEBGL CONTEXT ========================= */
   var GL = CANVAS.getContext("experimental-webgl", {antialias: true});
+  window.gl = GL;
 
 
   var shader_vertex_source= $("script[type=vshader]").html();
@@ -31,10 +32,12 @@ var main=function() {
   GL.attachShader(SHADER_PROGRAM, shader_fragment);
   GL.linkProgram(SHADER_PROGRAM);
 
-  var SHADER_PROGRAM3=GL.createProgram();
-  GL.attachShader(SHADER_PROGRAM3, point_vertex);
-  GL.attachShader(SHADER_PROGRAM3, point_fragment);
-  GL.linkProgram(SHADER_PROGRAM3);
+  // var SHADER_PROGRAM3=GL.createProgram();
+  // GL.attachShader(SHADER_PROGRAM3, point_vertex);
+  // GL.attachShader(SHADER_PROGRAM3, point_fragment);
+  // GL.linkProgram(SHADER_PROGRAM3);
+  var mat = new Material(GL, "point.vert", "point.frag");
+  var m = new Mesh(GL, GL.POINTS, [0, 0, 0, 1]);
 
   var SHADER_PROGRAM2=GL.createProgram();
   GL.attachShader(SHADER_PROGRAM2, shader_vertex);
@@ -195,41 +198,40 @@ var main=function() {
   animate();
 
   (function(){
-      var down = false;
-      $(CANVAS).mousedown(function(data){
-        down = true;
-        window.mousedown = down;
-      });
-      $(window).mouseup(function(data){
-        down = false;
-        window.mousedown = down;
-      });
-      $(CANVAS).mousemove(function(data){
-        if(down)
-        {
-            var offset = $(data.target).offset();
-            var x = data.pageX - offset.left, y = data.pageY - offset.top;
-
+        var onDrag = function(x, y){
             setupProgram(SHADER_PROGRAM2);
             GL.bindTexture(GL.TEXTURE_2D, fboTex.colorTex.id);
             fboTex.bind(GL);
-            // GL.clear(GL.COLOR_BUFFER_BIT);
-            // GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_SHORT, 0);
-            setupProgramPoint(SHADER_PROGRAM3);
-            GL.uniform2f(GL.getUniformLocation(SHADER_PROGRAM3, "mouse"), x, y);
-            GL.drawArrays(GL.POINTS, 0, 1);
+
+            mat.use();
+            mat.uniform2f("mouse", x, y);
+            // setupProgramPoint(SHADER_PROGRAM3);
+            // GL.uniform2f(GL.getUniformLocation(SHADER_PROGRAM3, "mouse"), x, y);
+            // GL.drawArrays(GL.POINTS, 0, 1);
+            m.draw(mat);
             GL.flush();
             fboTex.unbind(GL);
 
-            // setupProgram(SHADER_PROGRAM2);
-            // GL.bindTexture(GL.TEXTURE_2D, fboScreen.colorTex.id);
-            // GL.clearColor(0,0,0,1);
-            // GL.clear(GL.COLOR_BUFFER_BIT);
-            // GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_SHORT, 0);
-            // GL.flush();
 
-            console.log("draw point");
-        }
+        };
+        var down = false;
+        $(CANVAS).mousedown(function(data){
+            window.mousedown = down = true;
+
+            var offset = $(data.target).offset();
+            var x = data.pageX - offset.left, y = data.pageY - offset.top;
+            onDrag(x, y);
+        });
+        $(window).mouseup(function(data){
+            window.mousedown = down = false;
+        });
+        $(CANVAS).mousemove(function(data){
+            if(down)
+            {
+                var offset = $(data.target).offset();
+                var x = data.pageX - offset.left, y = data.pageY - offset.top;
+                onDrag(x, y);
+            }
       });
   })();
 
