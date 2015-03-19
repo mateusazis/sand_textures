@@ -145,6 +145,7 @@ var main=function() {
   // var cube_texture=get_texture("p.png");
   // var cube_texture=get_texture("url.jpg");
   var t = Texture.fromURL(gl, "url.jpg");
+  mat0.texture("sampler", t, 0);
   console.log("t", t);
 
   /*========================= DRAWING ========================= */
@@ -204,29 +205,30 @@ var main=function() {
     // fboTex = fboScreen;
     // fboScreen = temp;
 
-    if(t)
-        mat0.texture("sampler", t, 0);
+    // if(t)
+
 
     quad.draw(mat0);
 
-    setTimeout(animate, 0);
+    // setTimeout(animate, 0);
   };
   animate();
 
   (function(){
         var onDrag = function(x, y){
-            setupProgram(SHADER_PROGRAM2);
-            GL.bindTexture(GL.TEXTURE_2D, fboTex.colorTex.id);
-            fboTex.bind(GL);
+            // setupProgram(SHADER_PROGRAM2);
+            // GL.bindTexture(GL.TEXTURE_2D, fboTex.colorTex.id);
+            // fboTex.bind(GL);
 
-            mat.use();
+            // mat.use();
             mat.uniform2f("mouse", x, y);
             // setupProgramPoint(SHADER_PROGRAM3);
             // GL.uniform2f(GL.getUniformLocation(SHADER_PROGRAM3, "mouse"), x, y);
             // GL.drawArrays(GL.POINTS, 0, 1);
+            quad.draw(mat0);
             m.draw(mat);
-            GL.flush();
-            fboTex.unbind(GL);
+            // GL.flush();
+            // fboTex.unbind(GL);
 
 
         };

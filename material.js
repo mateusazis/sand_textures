@@ -7,6 +7,9 @@ function Material(gl, vertURL, fragURL){
     this.shaders = [];
     var obj = this;
 
+    this.queue = {textures: []};
+    this.textureUnits = [];
+
     var onShaderLoaded = function(src, type){
         var handle = gl.createShader(type);
 
@@ -35,6 +38,7 @@ function Material(gl, vertURL, fragURL){
             gl.deleteShader(obj.shaders[1]);
 
             obj.ready = true;
+            obj.commitQueue();
         }
     };
 
@@ -70,11 +74,32 @@ Material.prototype = {
   uniform4f : function(locName, x, y, z, w){
      this.gl.uniform4f(this.gl.getUniformLocation(this.progId, locName), x, y, z, w);
   },
-  texture : function(locName, tex, textureUnit){
+  texture : function(locName, tex){
      this.use();
-     this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
-     this.gl.bindTexture(this.gl.TEXTURE_2D, tex.id);
-    //  console.log("set texture", locName, " on ", this.gl.getUniformLocation(this.progId, locName), " to ", tex.id);
-     this.gl.uniform1i(this.gl.getUniformLocation(this.progId, locName), textureUnit);
-  }
+     var textureUnit = this.textureUnits.indexOf(tex.id);
+     if(textureUnit == -1){
+         this.textureUnits.push(tex.id);
+         textureUnit = this.textureUnits.length - 1;
+     }
+
+     console.log("texture unit to ", textureUnit);
+     this.queue.textures.push({loc : locName, texture : tex, unit : textureUnit});
+     if(this.ready)
+        this.commitQueue();
+    //  this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
+    //  this.gl.bindTexture(this.gl.TEXTURE_2D, tex.id);
+    //  this.gl.uniform1i(this.gl.getUniformLocation(this.progId, locName), textureUnit);
+ },
+ commitQueue : function(){
+     var progId = this.progId;
+     this.use();
+     this.queue.textures.forEach(function(entry){
+         this.gl.activeTexture(this.gl.TEXTURE0 + entry.unit);
+         console.log("entry", entry);//, "trace", new Error().stack);
+         this.gl.bindTexture(this.gl.TEXTURE_2D, entry.texture.id);
+        //  console.log("loc", this.gl.getUniformLocation(progId, entry.loc));
+         this.gl.uniform1i(this.gl.getUniformLocation(progId, entry.loc), entry.unit);
+     });
+     this.queue.textures = [];
+ }
 };
