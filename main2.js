@@ -3,7 +3,7 @@ var main=function() {
   var CANVAS=$("canvas")[0];
   $(CANVAS).bind('contextmenu', function(e){
         return false;
-    }); 
+    });
 
   /*========================= GET WEBGL CONTEXT ========================= */
   var GL = CANVAS.getContext("experimental-webgl", {antialias: true});
@@ -16,7 +16,7 @@ var main=function() {
   GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
 
   GL.depthFunc(GL.LEQUAL);
-  GL.clearColor(0.0, 0.0, 0.0, 0.0);
+  GL.clearColor(0.0, 0.0, 0.0, 1.0);
   GL.clearDepth(1.0);
 
   var mat0 = new Material(GL, "move.vert", "move.frag");
@@ -40,7 +40,8 @@ var main=function() {
 
 
 
-  var t = Texture.fromURL(gl, "url.jpg");
+  var t = Texture.fromURL(gl, "p2.png");
+  // var t = Texture.fromURL(gl, "url.jpg");
   mat0.texture("sampler", t, 0);
 
   /*========================= DRAWING ========================= */
@@ -75,6 +76,7 @@ var main=function() {
         if(down)
             clearPoint(mousePos.x, mousePos.y);
 
+        GL.clear(GL.COLOR_BUFFER_BIT);
         mat0.texture("sampler", fboTex);
         quad.draw(mat0, fboScreen);
 

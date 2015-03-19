@@ -15,7 +15,7 @@ void main(void) {
     if(empty(color))
         color = colorAbove;
     else if(empty(colorBelow))
-        color.rgb = vec3(.0);
+        color = vec4(0., 0., 0., 1.);
         // color.r = 1.0;
         // color.a = .0;
 
