@@ -89,13 +89,9 @@ Material.prototype = {
      this.use();
      for(var loc in this.queue.textures){
          var entry = this.queue.textures[loc];
-        //  console.log("bind to unit ", entry.unit, "from ", entry.texture instanceof FBO);
-        //  if(entry.texture instanceof FBO)
-        //     entry.unit = 1;
          this.gl.activeTexture(this.gl.TEXTURE0 + entry.unit);
          this.gl.bindTexture(this.gl.TEXTURE_2D, entry.texture.getId());
          this.gl.uniform1i(this.gl.getUniformLocation(progId, loc), entry.unit);
      }
-    //  this.queue.textures = [];
  }
 };
