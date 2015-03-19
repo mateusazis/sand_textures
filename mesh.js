@@ -33,10 +33,11 @@ function Mesh(gl, topology, vertices, indices, uv){
     };
 }
 
-Mesh.prototype.draw = function(material){
+Mesh.prototype.draw = function(material, target){
     if(!material.ready)
         return;
-    material.use();
+
+    material.commitQueue();
 
     var posLoc = this.gl.getAttribLocation(material.progId, "position");
 
@@ -55,6 +56,9 @@ Mesh.prototype.draw = function(material){
         this.gl.vertexAttribPointer(_uv, 2, this.gl.FLOAT, false, 0, 0) ;
     }
 
+    if(target)
+        target.bind();
+
     if(this.vaoHandle){
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.vaoHandle);
         this.gl.drawElements(this.gl.TRIANGLES, this.indices.length, this.gl.UNSIGNED_SHORT,0);
@@ -63,4 +67,7 @@ Mesh.prototype.draw = function(material){
     else{
         this.gl.drawArrays(this.topology, 0, count);
     }
+
+    if(target)
+        target.unbind();
 };

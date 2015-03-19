@@ -42,7 +42,6 @@ function Material(gl, vertURL, fragURL){
         }
     };
 
-    console.log(3);
     $.get(vertURL, function(src){
         onShaderLoaded(src, gl.VERTEX_SHADER);
     });
@@ -66,6 +65,7 @@ Material.prototype = {
      this.gl.uniform1f(this.gl.getUniformLocation(this.progId, locName), value);
   },
   uniform2f : function(locName, x, y){
+      this.use();
      this.gl.uniform2f(this.gl.getUniformLocation(this.progId, locName), x, y);
   },
   uniform3f : function(locName, x, y, z){
@@ -82,24 +82,20 @@ Material.prototype = {
          textureUnit = this.textureUnits.length - 1;
      }
 
-     console.log("texture unit to ", textureUnit);
-     this.queue.textures.push({loc : locName, texture : tex, unit : textureUnit});
-     if(this.ready)
-        this.commitQueue();
-    //  this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
-    //  this.gl.bindTexture(this.gl.TEXTURE_2D, tex.id);
-    //  this.gl.uniform1i(this.gl.getUniformLocation(this.progId, locName), textureUnit);
+     this.queue.textures[locName] = { texture : tex, unit : textureUnit};
  },
  commitQueue : function(){
      var progId = this.progId;
      this.use();
-     this.queue.textures.forEach(function(entry){
+     for(var loc in this.queue.textures){
+         var entry = this.queue.textures[loc];
+        //  console.log("bind to unit ", entry.unit, "from ", entry.texture instanceof FBO);
+        //  if(entry.texture instanceof FBO)
+        //     entry.unit = 1;
          this.gl.activeTexture(this.gl.TEXTURE0 + entry.unit);
-         console.log("entry", entry);//, "trace", new Error().stack);
-         this.gl.bindTexture(this.gl.TEXTURE_2D, entry.texture.id);
-        //  console.log("loc", this.gl.getUniformLocation(progId, entry.loc));
-         this.gl.uniform1i(this.gl.getUniformLocation(progId, entry.loc), entry.unit);
-     });
-     this.queue.textures = [];
+         this.gl.bindTexture(this.gl.TEXTURE_2D, entry.texture.getId());
+         this.gl.uniform1i(this.gl.getUniformLocation(progId, loc), entry.unit);
+     }
+    //  this.queue.textures = [];
  }
 };
